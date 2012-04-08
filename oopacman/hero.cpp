@@ -8,7 +8,7 @@ void Hero::tick()
         tick_counter = 0;
 }
 
-Hero::Hero()
+Hero::Hero(int flag_who) : flag_who(flag_who)
 {
     position = NULL;
     is_moving = false;
@@ -54,15 +54,16 @@ bool Hero::processMessage(int message, Data extra_data)
                 int state = 0;
                 switch ( next_dir )
                 {
-                    case UP :       state |= HERO_UP;    break;
-                    case RIGHT :    state |= HERO_RIGHT; break;
-                    case DOWN :     state |= HERO_DOWN;  break;
-                    case LEFT :     state |= HERO_LEFT;  break;
+                    case UP :       state |= FLAG_UP;    break;
+                    case RIGHT :    state |= FLAG_RIGHT; break;
+                    case DOWN :     state |= FLAG_DOWN;  break;
+                    case LEFT :     state |= FLAG_LEFT;  break;
                 }
                 if (aggressive)
-                    state |= HERO_AGGRESSIVE;
+                    state |= FLAG_AGGRESSIVE;
                 if (alive)
-                    state |= HERO_ALIVE;
+                    state |= FLAG_ALIVE;
+                state |= flag_who;
 
                 getLoop()->postMessage(position, MSG_DRAW, Data(state));
             }
@@ -105,7 +106,7 @@ bool Hero::processMessage(int message, Data extra_data)
     return false;
 }
 
-PacMan::PacMan()
+PacMan::PacMan() : Hero(FLAG_PACMAN)
 {
     score = 0;
     aggressive = false;
@@ -119,6 +120,11 @@ void PacMan::inc_score(unsigned i)
 {
     score += i;
     getLoop()->postMessage(NULL, MSG_SCORE_UPD, Data(score));
+}
+
+unsigned PacMan::get_score()
+{
+    return score;
 }
 
 void PacMan::move_action()
@@ -168,7 +174,7 @@ void PacMan::process_key(int ch)
         getLoop()->postMessage(NULL, MSG_START_GAME, Data());
 }
 
-Ghost::Ghost()
+Ghost::Ghost() : Hero(FLAG_GHOST)
 {
     // init skill, aggr, ...
     aggressive = true;
@@ -186,7 +192,10 @@ void Ghost::check_meeting()
         if (aggressive)
             getLoop()->postMessage(NULL, MSG_STOP_GAME, Data(STOP_PACMAN_DIED));
         else
+        {
+            position->set_dead();
             alive = false;
+        }
     }
 }
 
@@ -210,13 +219,14 @@ void Ghost::tick_action()
         for( unsigned dir = 0 ; dir < 4 ; ++dir )
         {
             neighbor = position->neighbor(Direction(dir));
-            best_depth = best(best_depth, neighbor->wave.depth, aggressive);
+            if (can_move(Direction(dir)))
+                best_depth = best(best_depth, neighbor->wave.depth, aggressive);
         }
         for( unsigned dir = 0 ; dir < 4 ; ++dir )
         {
             neighbor = position->neighbor(Direction(dir));
             if (neighbor->wave.depth == best_depth &&
-                !neighbor->is_wall()
+                can_move(Direction(dir))
                )
                 best_dirs[best_dirs_num++] = Direction(dir);
         }

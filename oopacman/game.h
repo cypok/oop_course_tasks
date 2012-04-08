@@ -1,5 +1,7 @@
 #pragma once
 
+#include  <time.h>
+
 #include  "oopacman.h"
 #include  "map.h"
 #include  "hero.h"
@@ -35,6 +37,6 @@ public:
     void draw_map();
     void draw_heroes();
 
-    void start();
+    GameStats start();
 };
 

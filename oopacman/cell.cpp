@@ -117,6 +117,11 @@ ObjType Cell::pop_content()
     return ot;
 }
 
+void Cell::set_dead()
+{
+    content = DEAD;
+}
+
 Cell * Cell::neighbor(Direction dir)
 {
     return neighbors[dir];
@@ -136,41 +141,45 @@ void draw_at(int x, int y, short color, int ch)
 
 void Cell::draw(int flags)
 {
-    static char energizer_states[] = "|/-\\";
-    static unsigned energizer_states_num = sizeof(energizer_states)/sizeof(energizer_states[0]) - 1;
-
     int x = screen_position.x;
     int y = screen_position.y;
+
+    if (flags & FLAG_ERASE)
+    {
+        draw_at(x, y, BACKGROUND_COLOR, ' ');
+        draw_at(x+1, y, BACKGROUND_COLOR, ' ');
+        return;
+    }
 
     ObjType ot = map->who_is_here(this);
     if (ot == EMPTY)
         ot = content;
-
     int ch;
     switch ( ot )
     {
         case PACMAN :
-            if (!(flags & HERO_ALIVE))
-                ch = 'X';
-            else
-            {
-                assert(flags & (HERO_UP | HERO_RIGHT | HERO_DOWN | HERO_LEFT));
+            if ( !( (flags & FLAG_PACMAN) && (flags & FLAG_ALIVE) ) )
+                break;
 
-                if (flags & HERO_UP)
-                    ch = '^';
-                else if (flags & HERO_RIGHT)
-                    ch = '>';
-                else if (flags & HERO_DOWN)
-                    ch = 'v';
-                else if (flags & HERO_LEFT)
-                    ch = '<';
-            }
+            assert(flags & (FLAG_UP | FLAG_RIGHT | FLAG_DOWN | FLAG_LEFT));
+
+            if (flags & FLAG_UP)
+                ch = '^';
+            else if (flags & FLAG_RIGHT)
+                ch = '>';
+            else if (flags & FLAG_DOWN)
+                ch = 'v';
+            else if (flags & FLAG_LEFT)
+                ch = '<';
 
             draw_at(x, y, short(EMPTY), ' ');
             draw_at(x + 1, y, short(PACMAN), ch);
             break;
 
         case GHOST :
+            if ( !( (flags & FLAG_GHOST) && (flags & FLAG_ALIVE) ) )
+                break;
+
             ch = '&';
 
             draw_at(x, y, short(EMPTY), ' ');
@@ -185,7 +194,7 @@ void Cell::draw(int flags)
             break;
 
         case ENERGIZER :
-            ch = energizer_states[ (map->get_ticks() / DD_ENERGIZER) % energizer_states_num ];
+            ch = ENERGIZER_STATES[ (map->get_ticks() / DD_ENERGIZER) % ENERGIZER_STATES_NUM ];
 
             draw_at(x, y, short(EMPTY), ' ');
             draw_at(x + 1, y, short(ENERGIZER), ch);
@@ -203,6 +212,12 @@ void Cell::draw(int flags)
 
             draw_at(x, y, short(WALL), ch);
             draw_at(x + 1, y, short(WALL), ch);
+            break;
+        case DEAD:
+            ch = 'X';
+
+            draw_at(x, y, short(DEAD), ' ');
+            draw_at(x + 1, y, short(DEAD), ch);
             break;
     }
 }

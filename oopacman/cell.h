@@ -40,6 +40,7 @@ public:
     bool is_here(ObjType ot);
     bool can_move(Direction dir);
     ObjType pop_content();
+    void set_dead();
     Cell * neighbor(Direction dir);
     ObjType get_content();
 

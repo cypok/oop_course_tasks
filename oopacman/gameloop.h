@@ -9,6 +9,7 @@ class GameLoop : public MessageLoop
 protected:
     Game * game;
     unsigned energizer_ticks_left;
+    GameResult game_result;
 
     virtual void beforeRun();
 
@@ -22,6 +23,7 @@ protected:
     virtual int keyPressed();
 public:
     GameLoop(Game *game);
+    GameResult get_result();
 };
 
 #include  "game.h"  // GameLoop must be defined earlier then Game

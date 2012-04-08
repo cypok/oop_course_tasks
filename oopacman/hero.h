@@ -10,6 +10,7 @@ protected:
     Cell *position;
     bool alive;
     bool aggressive;
+    int flag_who;
 
     unsigned move_delay; // move happens after every `move_delay` timer ticks
     bool is_moving;
@@ -27,7 +28,7 @@ protected:
     virtual void energize_action(int flag) = 0; // called on toggling energizer
 
 public:
-    Hero();
+    Hero(int flag_who);
     void set_position(Cell *new_position);
     Cell * get_position();
     void set_move_delay(unsigned ticks);
@@ -47,6 +48,7 @@ protected:
 public:
     PacMan();
     void inc_score(unsigned i);
+    unsigned get_score();
 
     void process_key(int ch);
 };

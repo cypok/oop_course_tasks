@@ -11,13 +11,14 @@ Game::Game(FILE *file, unsigned tick_ms) :
 {
     srand( (unsigned)time( NULL ) );
 
-    con_init();
     INIT_COLOR(PACMAN);
     INIT_COLOR(GHOST);
     INIT_COLOR(POINT);
     INIT_COLOR(ENERGIZER);
     INIT_COLOR(EMPTY);
     INIT_COLOR(WALL);
+    INIT_COLOR(DEAD);
+    con_initPair(BACKGROUND_COLOR, BACKGROUND_FG, BACKGROUND_BG);
 
     map.setLoop( &loop );
     map.set_cells_loop();
@@ -42,7 +43,6 @@ Game::Game(FILE *file, unsigned tick_ms) :
 
 Game::~Game()
 {
-    con_deinit();
 }
 
 PacMan * Game::get_pacman()
@@ -74,10 +74,19 @@ void Game::draw_heroes()
     }
 }
 
-void Game::start()
+GameStats Game::start()
 {
-    // work hard (set positions and etc.)
+    score_label.draw(true);
+    energizer_label.draw(false);
+
     loop.run();
+
+    map.clear();
+    score_label.draw(false);
+    energizer_label.draw(false);
+
+    GameStats stats = { loop.get_result(), pacman.get_score() };
+    return stats;
 }
 
 Label::Digital * Game::get_score_label()

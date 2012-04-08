@@ -8,7 +8,8 @@ bool is_separator(char ch)
     return ch == '\n' || ch == '\r' || ch == '\t';
 }
 
-Map::Map(FILE *file, unsigned screen_position_x, unsigned screen_position_y, Game *game) : game(game)
+Map::Map(FILE *file, unsigned screen_position_x, unsigned screen_position_y, Game *game)
+    : game(game), screen_position_x(screen_position_x), screen_position_y(screen_position_y)
 {
     tick_counter = 0;
 
@@ -43,6 +44,8 @@ Map::Map(FILE *file, unsigned screen_position_x, unsigned screen_position_y, Gam
 
     unsigned size = width*height;
     cells = (Cell *)malloc(size * sizeof(cells[0]));
+    if (cells == NULL)
+        throw std::bad_alloc();
     unsigned i = 0;
     unsigned ghost_index = 0;
     unsigned energizer_index = 0;
@@ -150,6 +153,13 @@ void Map::draw()
     for (unsigned i = 0; i < height; ++i)
         for (unsigned j = 0; j < width; ++j)
             getLoop()->postMessage(&cells[ i*width + j ], MSG_DRAW, Data(0));
+}
+
+void Map::clear()
+{
+    for (unsigned i = 0; i < height; ++i)
+        for (unsigned j = 0; j < width; ++j)
+            cells[ i*width + j ].processMessage(MSG_DRAW, Data(FLAG_ERASE));
 }
 
 void Map::reset_wave()

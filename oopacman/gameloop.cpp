@@ -3,6 +3,7 @@
 GameLoop::GameLoop(Game *game): MessageLoop(), game(game)
 {
     energizer_ticks_left = 0;
+    game_result = GR_NONE;
 }
 
 void GameLoop::beforeRun()
@@ -11,8 +12,6 @@ void GameLoop::beforeRun()
     game->draw_heroes();
     postMessage(game->get_timer(), MSG_TICK, Data());
 
-    game->get_score_label()->draw();
-    game->get_energizer_label()->draw();
 }
 
 // FOR ALL: if true leave run()
@@ -24,16 +23,13 @@ bool GameLoop::processMessage(int message, Data extra_data)
             switch ( extra_data.integer() )
             {
                 case STOP_POINTS_EATEN:
-                    // TODO: print that you are winner
-                    return true;
+                    game_result = GR_WINNER;
+                    break;
                 case STOP_PACMAN_DIED :
-                    // TODO: print that you are loser
-                    return true;
-                case STOP_PAUSED :
-                    //
+                    game_result = GR_LOSER;
                     break;
             }
-            break;
+            return true;
         case MSG_START_GAME:
             postMessage(game->get_pacman(), MSG_START_GAME, Data());
             for( unsigned i = 0 ; i < GHOST_NUMBER ; ++i )
@@ -44,7 +40,10 @@ bool GameLoop::processMessage(int message, Data extra_data)
             {
                 energizer_ticks_left = ENERGIZE_DURATION;
                 game->get_energizer_label()->set_percentage(100);
+                game->get_energizer_label()->draw();
             }
+            else
+                game->get_energizer_label()->draw(false);
 
             postMessage(game->get_pacman(), MSG_ENERGIZER, extra_data);
             for( unsigned i = 0 ; i < GHOST_NUMBER ; ++i )
@@ -71,7 +70,10 @@ bool GameLoop::processMessage(int message, Data extra_data)
 bool GameLoop::processKey(int ch)
 {
     if (ch == CON_KEY_ESCAPE)
+    {
+        game_result = GR_NONE;
         return true;
+    }
     game->get_pacman()->process_key(ch);
     return false;
 }
@@ -89,5 +91,10 @@ int GameLoop::getKey()
 int GameLoop::keyPressed()
 {
     return con_keyPressed();
+}
+
+GameResult GameLoop::get_result()
+{
+    return game_result;
 }
 

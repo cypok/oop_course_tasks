@@ -10,20 +10,23 @@ char * align_center(char *dst, const char *src, size_t w)
 
     size_t len = strlen(src);
     if (len > w)
-        len = w;
-
-    memcpy(dst + (w - len)/2, src, len);
+    {
+        memcpy(dst, src, w - 3);
+        memcpy(dst + w - 3, "...", 3);
+    }
+    else
+        memcpy(dst + (w - len)/2, src, len);
 
     return dst;
 }
 
-Label::Label(unsigned x, unsigned y, unsigned w, const char *capt) : x(x), y(y), w(w)
+Label::Label(unsigned x, unsigned y, unsigned w, unsigned h, const char *caption) : x(x), y(y), w(w), h(h)
 {
-    if (w < 1)
-        w = 1;
+    if (w < 4)
+        w = 4;
 
-    caption = new char[w + 1];
-    align_center(caption, capt, w);
+    this->caption = new char[w + 1];
+    align_center(this->caption, caption, w);
 }
 
 Label::~Label()
@@ -36,10 +39,38 @@ void Label::init_colors()
     // init on first draw
     static int init_col =       con_initPair(LABEL_COLOR,      LABEL_FG, LABEL_BG);
     static int init_col_inv =   con_initPair(LABEL_INV_COLOR,  LABEL_BG, LABEL_FG);
+    static int init_col_clear = con_initPair(BACKGROUND_COLOR,  BACKGROUND_FG, BACKGROUND_BG);
 }
 
-Digital::Digital(unsigned x, unsigned y, unsigned w, const char *capt)
-    : Label(x, y, w, capt)
+void Label::draw(bool normal)
+{
+    if (!normal)
+    {
+        clear();
+        return;
+    }
+
+    init_colors();
+
+    con_setColor(LABEL_COLOR);
+    con_gotoXY(x, y);
+    con_outTxt("%s", caption);
+}
+
+void Label::clear()
+{
+    init_colors();
+
+    con_setColor(BACKGROUND_COLOR);
+    for( unsigned i = 0 ; i < h ; ++i )
+    {
+        con_gotoXY(x, y + i);
+        con_outTxt("%*s", w, " ");
+    }
+}
+
+Digital::Digital(unsigned x, unsigned y, unsigned w, const char *caption)
+    : Label(x, y, w, 2, caption)
 {
     output_buf = new char[w + 1];
 
@@ -51,8 +82,13 @@ Digital::~Digital()
     delete[] output_buf;
 }
 
-void Digital::draw()
+void Digital::draw(bool normal)
 {
+    if (!normal)
+    {
+        clear();
+        return;
+    }
     init_colors();
 
     sprintf(format_buf, "%d", value);
@@ -75,7 +111,7 @@ void Digital::set_value(int v)
 }
 
 Bar::Bar(unsigned x, unsigned y, unsigned w, const char *caption)
-    : Label(x, y, w, caption)
+    : Label(x, y, w, 2, caption)
 {
     bar_len = 0;
 }
@@ -86,8 +122,14 @@ inline int round(double d)
     return (2*d > double(2*i + 1)) ? (i + 1) : i;
 }
 
-void Bar::draw()
+void Bar::draw(bool normal)
 {
+    if (!normal)
+    {
+        clear();
+        return;
+    }
+
     init_colors();
 
     con_setColor(LABEL_COLOR);
@@ -134,6 +176,37 @@ void Bar::set_percentage(unsigned percent)
         bar_len = new_len;
         draw();
     }
+}
+
+MenuItem::MenuItem(unsigned x, unsigned y, unsigned w, const char *caption)
+    : Label(x, y, w-6, 1, caption)
+{
+    // Base class constructor gets w-6 instead w for
+    // correct align of caption
+    // because label will be '-> caption <-'
+    this->w += 6;
+    chosen = false;
+}
+
+void MenuItem::draw(bool normal)
+{
+    if (!normal)
+    {
+        clear();
+        return;
+    }
+
+    init_colors();
+
+    con_setColor(LABEL_COLOR);
+    con_gotoXY(x, y);
+    con_outTxt("%s %s %s", (chosen ? ">>" : "  "), caption, (chosen ? "<<" : "  "));
+}
+
+void MenuItem::toggle()
+{
+    chosen = !chosen;
+    draw();
 }
 
 };

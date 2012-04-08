@@ -9,6 +9,8 @@ class Game; // predefined
 class Map : public Object
 {
 private:
+    unsigned screen_position_x;
+    unsigned screen_position_y;
     unsigned width, height;
     Cell *cells;
     struct
@@ -30,6 +32,7 @@ public:
 
     void set_cells_loop();
     void draw();
+    void clear();
     void reset_wave();
     unsigned get_ticks();
 

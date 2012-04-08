@@ -23,7 +23,7 @@ void Timer::add_object(Object * object)
 
 Timer::~Timer()
 {
-    delete[] objs;
+    free(objs);
 }
 
 bool Timer::processMessage(int message, Data extra_data)
