@@ -45,7 +45,7 @@ public:
 
     virtual bool processMessage(int message, Data extra_data);
 
-    void * operator new(unsigned size, void *pointer);
+    void * operator new(size_t size, void *pointer);
 #ifdef _MSC_VER
     void operator delete(void *pointer, void *pointer2);
 #endif

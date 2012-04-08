@@ -38,7 +38,7 @@ void Clock::render(int action)
         curr_time_tm = localtime(&curr_time);
         strftime(buf.data, size.x + 1, "%H:%M:%S", curr_time_tm);
 
-        con_set_color(OBJ_COL);
+        con_setColor(OBJ_COL);
         if (active)
             con_outTxt("<%*s>", size.x-2, buf.data);
         else
@@ -46,7 +46,7 @@ void Clock::render(int action)
     }
     else
     {
-        con_set_color(BG_COL);
+        con_setColor(BG_COL);
         con_outTxt("%*s", size.x, "");
     }
     rendered();

@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../mds/mds.h"
+#include "../lib/console.h"
 #include <time.h>
 #include <string.h>
 #include <stdarg.h>
@@ -10,7 +11,7 @@
 #       pragma warning(disable : 4996)
 #       define _CRTDBG_MAP_ALLOC
 #       include <crtdbg.h>
-#   else
+#   elif __GLIBC__
 #       include <mcheck.h>
 #   endif
 #endif
@@ -546,7 +547,7 @@ int main()
     MDS_DATA data;
     int i = 0;
 
-#if (!NDEBUG && !WIN32)
+#if (!NDEBUG && __GLIBC__)
     mtrace();
 #endif
 

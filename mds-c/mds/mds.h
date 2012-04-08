@@ -1,7 +1,7 @@
 #ifndef _MDS_H_
 #define _MDS_H_
 
-#include "../console/console.h"
+#include "../lib/console.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

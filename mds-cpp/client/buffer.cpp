@@ -22,7 +22,7 @@ void Buffer::render(int action)
     if (action == 0)
     {
         // normal rendering
-        con_set_color(OBJ_COL);
+        con_setColor(OBJ_COL);
         if (active)
             con_outTxt("<%*s>", text_len, text);
         else
@@ -31,7 +31,7 @@ void Buffer::render(int action)
     else
     {
         // erasing
-        con_set_color(BG_COL);
+        con_setColor(BG_COL);
         con_outTxt("%*s", size.x, "");
     }
     rendered();

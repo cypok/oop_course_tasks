@@ -34,8 +34,8 @@ Label::~Label()
 void Label::init_colors()
 {
     // init on first draw
-    static int init_col =       con_init_pair(LABEL_COLOR,      LABEL_FG, LABEL_BG);
-    static int init_col_inv =   con_init_pair(LABEL_INV_COLOR,  LABEL_BG, LABEL_FG);
+    static int init_col =       con_initPair(LABEL_COLOR,      LABEL_FG, LABEL_BG);
+    static int init_col_inv =   con_initPair(LABEL_INV_COLOR,  LABEL_BG, LABEL_FG);
 }
 
 Digital::Digital(unsigned x, unsigned y, unsigned w, const char *capt)
@@ -58,7 +58,7 @@ void Digital::draw()
     sprintf(format_buf, "%d", value);
     align_center(output_buf, format_buf, w);
 
-    con_set_color(LABEL_COLOR);
+    con_setColor(LABEL_COLOR);
     con_gotoXY(x, y);
     con_outTxt("%s", caption);
     con_gotoXY(x, y+1);
@@ -90,19 +90,19 @@ void Bar::draw()
 {
     init_colors();
 
-    con_set_color(LABEL_COLOR);
+    con_setColor(LABEL_COLOR);
     con_gotoXY(x, y);
     con_outTxt("%s", caption);
 
     // draw left border
-    con_set_color(LABEL_COLOR);
+    con_setColor(LABEL_COLOR);
     con_gotoXY(x, y + 1);
     con_outTxt("[");
 
     // draw bar's filled part
     if (bar_len > 0)
     {
-        con_set_color(LABEL_INV_COLOR);
+        con_setColor(LABEL_INV_COLOR);
         con_gotoXY(x + 1, y + 1);
         con_outTxt("%*s", bar_len, " ");
     }
@@ -110,13 +110,13 @@ void Bar::draw()
     // draw bar's empty part
     if (w-2 - bar_len > 0)
     {
-        con_set_color(LABEL_COLOR);
+        con_setColor(LABEL_COLOR);
         con_gotoXY(x + 1 + bar_len, y + 1);
         con_outTxt("%*s", w-2 - bar_len, " ");
     }
 
     // draw right border
-    con_set_color(LABEL_COLOR);
+    con_setColor(LABEL_COLOR);
     con_gotoXY(x + w - 1, y + 1);
     con_outTxt("]");
 }

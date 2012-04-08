@@ -70,7 +70,7 @@ void MDS_dumpObjectType(FILE *file)
     for(cur = types; cur != NULL; cur = cur->next)
     {
         obj_type = (MDS_ObjectType *)(cur->type);
-        fprintf(file, "[ id: \"%s\", size: %u, msg_proc: %p ]\n", obj_type->id, obj_type->size, obj_type->msg_proc);
+        fprintf(file, "[ id: \"%s\", size: %zu, msg_proc: %p ]\n", obj_type->id, obj_type->size, obj_type->msg_proc);
     }
 }
 
@@ -219,7 +219,7 @@ void MDS_dumpQueue(FILE *file)
     for(cur = q_out; cur != NULL; cur = cur->next)
     {
         info = &(cur->info);
-        fprintf(file, "[ time: %i, receiver: ", cur->time);
+        fprintf(file, "[ time: %llu, receiver: ", (long long unsigned)cur->time);
         MDS_dumpObject(file, info->receiver);
         fprintf(file, ", message: %i, extra-data: %i(%p) ]\n", info->message, info->extra_data.integer, info->extra_data.ptr);
     }

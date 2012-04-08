@@ -1,6 +1,6 @@
 #include  "game.h"
 
-#define INIT_COLOR(what) con_init_pair(int(what), what##_FG, what##_BG)
+#define INIT_COLOR(what) con_initPair(int(what), what##_FG, what##_BG)
 
 Game::Game(FILE *file, unsigned tick_ms) :
     map(file, SCREEN_MAP_X, SCREEN_MAP_Y, this),

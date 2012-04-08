@@ -10,7 +10,7 @@
 #       pragma warning(disable : 4996)
 #       define _CRTDBG_MAP_ALLOC
 #       include <crtdbg.h>
-#   else
+#   elif __GLIBC__
 #       include <mcheck.h>
 #   endif
 #endif
@@ -22,15 +22,15 @@ using namespace std;
 
 int main()
 {
-#if (!NDEBUG && !WIN32)
+#if (!NDEBUG && __GLIBC__)
     mtrace();
 #endif
 
     try
     {
         con_init();
-        con_init_pair(OBJ_COL, CON_COLOR_GREEN,CON_COLOR_CYAN);
-        con_init_pair(BG_COL, CON_COLOR_BLACK,CON_COLOR_BLACK);
+        con_initPair(OBJ_COL, CON_COLOR_GREEN,CON_COLOR_CYAN);
+        con_initPair(BG_COL, CON_COLOR_BLACK,CON_COLOR_BLACK);
         ConsoleObject *objects[OBJ_NUM];
         int i = 0;
 

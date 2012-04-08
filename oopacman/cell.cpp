@@ -130,7 +130,7 @@ ObjType Cell::get_content()
 void draw_at(int x, int y, short color, int ch)
 {
     con_gotoXY(x, y);
-    con_set_color(color);
+    con_setColor(color);
     con_outTxt("%c", ch);
 }
 
@@ -214,7 +214,7 @@ bool Cell::processMessage(int message, Data extra_data)
     return false;
 }
 
-void * Cell::operator new(unsigned size, void *pointer)
+void * Cell::operator new(size_t size, void *pointer)
 {
     return pointer;
 }

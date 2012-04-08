@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../mds/mds.h"
-#include "../console/console.h"
+#include "../lib/console.h"
 
 using namespace MDS;
 
