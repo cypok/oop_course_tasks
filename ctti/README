@@ -1,0 +1,39 @@
+Constant-Time Type Identification
+
+авторы Владимир Парфиненко и Иван Новиков
+
+Основной идеей библиотеки является замена RTTI, который действует за линейное время при dynamic_cast'ах. Мы же добиваемся константного времени.
+
+Пример использования:
+
+  #include <assert.h>
+  #include "ctti.h"
+
+  class A : public Object
+  {
+      CTTI_OBJECT(A, Object)
+  };
+
+  class B : public A
+  {
+      CTTI_OBJECT(B, A)
+  };
+
+  class X : public Object
+  {
+      CTTI_OBJECT(X, Object)
+  };
+
+  int main()
+  {
+      A a;
+      B b;
+      X x;
+
+      assert(   a.getType().isSubclassOf( a.getType() ) );
+      assert(   b.getType().isSubclassOf( a.getType() ) );
+      assert( ! a.getType().isSubclassOf( b.getType() ) );
+      assert( ! x.getType().isSubclassOf( a.getType() ) );
+
+      return 0;
+  }

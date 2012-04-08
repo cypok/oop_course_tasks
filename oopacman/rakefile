@@ -1,0 +1,83 @@
+# here you add all your modules, libs that are in 'lib' directory and system libraries
+binary = :oopacman
+modules = [:oopacman, :cell, :game, :gameloop, :hero, :label, :map, :timer]
+libs = [:mds, :console]
+sys_libs = [:ncurses]
+
+
+# here you define which headers are included
+def includes
+    {
+        :oopacman =>    [:errors, :libmds, :libconsole],
+        :cell =>        [:oopacman, :map],
+        :game =>        [:oopacman, :map, :hero, :timer, :gameloop, :label],
+        :gameloop =>    [:oopacman, :game],
+        :hero =>        [:oopacman, :cell],
+        :label =>       [:oopacman],
+        :map =>         [:oopacman, :cell, :game],
+        :timer =>       [:oopacman],
+        :errors =>      [],
+        :libmds =>      [],
+        :libconsole =>  []
+    }
+end
+
+# ... and a lot of street magic ...
+obj_files = modules.map { |x| "build/#{x}.o" }
+lib_files = libs.map { |x| "lib/lib#{x}.a" }
+
+def is_lib?(s)
+    s.start_with? "lib"
+end
+
+def make_header(name)
+    if is_lib? name
+        "lib/#{name[3..-1]}.h"
+    else
+        "#{name}.h"
+    end
+end
+
+def find_depends(m, list)
+    includes[m].each do |h|
+        header = make_header( h.to_s )
+        unless list.include? header
+            list << header
+            find_depends(h, list)
+        end
+    end
+end
+
+depends = {}
+modules.each do |m|
+    depends[m] = ["#{m}.cpp", "#{m}.h"]
+    find_depends(m, depends[m])
+end
+
+#-----------------------------------------
+# TASKS
+task :default => "bin/#{binary}" do
+    sh "echo Success!"
+end
+
+desc "clean build files"
+task :clean do
+    sh "rm -f bin/* build/*"
+end
+
+desc "create main binary"
+file "bin/#{binary}" => lib_files | obj_files do
+    lib_keys = libs.map { |x| "-l#{x}" }
+    sys_lib_keys = sys_libs.map { |x| "-l#{x}" }
+    sh "echo Linking #{binary}..."
+    sh "g++ -g -o bin/#{binary} #{obj_files.join(' ')} -Llib #{lib_keys.join(' ')} #{sys_lib_keys.join(' ')}"
+end
+
+modules.each do |m|
+    desc "builds #{m}"
+    file "build/#{m}.o" => depends[m] do
+        sh "echo Building #{m}..."
+        sh "g++ -g -c -o build/#{m}.o #{m}.cpp"
+    end
+end
+
